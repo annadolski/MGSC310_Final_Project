@@ -1,0 +1,66 @@
+---
+title: "Final Project Summary Statistics"
+subtitle: "Codechella"
+authors: "Annie Nadolski, Eleanor McElwee, 
+Bryan Hwang, Henry Gresham"
+format:
+  html:
+    df-print: paged
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    code-tools: true
+    code-overflow: wrap
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+  error: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load libraries (install packages in the Console, not in the document)
+library(tidyverse)
+
+# Reproducibility
+set.seed(310)
+
+# Printing / numeric display
+options(width = 70)
+options(scipen = 99)
+
+# Chunk defaults (optional, but keeps figures consistent)
+knitr::opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 4,
+  fig.align  = "center"
+  )
+```
+
+## Load data
+
+```{r}
+
+bikes <- read.csv("../data/seoul_metro_bike_demand.csv", stringsAsFactors = TRUE)
+
+```
+
+## Summary statistics
+
+```{r}
+
+bikes %>% glimpse()
+
+bikes %>% summary()
+
+ggplot(data = bikes, aes(x = Rented.Bike.Count)) + geom_histogram(bins = 50)
+
+# use lubridate package to look at the dates for seasonality (wday(), year(), month(), etc.)
+# can use lagged term for a predictor (number of bikes used in each of the previous 12 days in the same hour or number of bikes used at this time last year)
+
+```
