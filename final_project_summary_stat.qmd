@@ -45,7 +45,7 @@ knitr::opts_chunk$set(
 ## Load data
 
 ```{r}
-
+# This don't work
 bikes <- read.csv("../data/seoul_metro_bike_demand.csv", stringsAsFactors = TRUE)
 
 ```
