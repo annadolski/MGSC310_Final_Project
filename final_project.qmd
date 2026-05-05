@@ -1,0 +1,143 @@
+---
+title: "Final Project Summary Statistics"
+subtitle: "Codechella"
+authors: "Annie Nadolski, Eleanor McElwee, 
+Bryan Hwang, Henry Gresham"
+format:
+  html:
+    df-print: paged
+    number-sections: true
+    toc: true
+    toc-depth: 2
+    code-tools: true
+    code-overflow: wrap
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+  cache: false
+  error: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+# Load libraries (install packages in the Console, not in the document)
+library(tidyverse)
+library(lubridate)
+
+# Reproducibility
+set.seed(310)
+
+# Printing / numeric display
+options(width = 70)
+options(scipen = 99)
+
+# Chunk defaults (optional, but keeps figures consistent)
+knitr::opts_chunk$set(
+  fig.width  = 5,
+  fig.height = 4,
+  fig.align  = "center"
+  )
+```
+
+## Load data
+
+```{r}
+
+bikes<- read.csv("seoul_metro_bike_demand_nokorean.csv", stringsAsFactors = FALSE, check.names = FALSE)
+library(dplyr)
+train_df <- bikes %>% slice(1:(292 * 24)) # gemini 365x24x.8
+test_df <- bikes %>% slice((292 * 24 + 1):n())
+
+print(nrow(train_df)) # Should be 7008
+print(nrow(test_df))  # Should be 1752
+
+```
+
+## Summary statistics
+
+```{r}
+
+bikes %>% glimpse()
+
+bikes %>% summary()
+
+ggplot(data = bikes, aes(x = Rented.Bike.Count, y = Temperature..C.)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm")
+
+```
+
+```{r}
+# use lubridate package to look at the dates for seasonality (wday(), year(), month(), etc.)
+# can use lagged term for a predictor (number of bikes used in each of the previous 12 days in the same hour or number of bikes used at this time last year)
+
+bikes <- bikes %>%
+  mutate(
+    weekday      = wday(Date, label = TRUE),
+    month_name   = month(Date, label = TRUE),
+    is_weekend   = factor(ifelse(wday(Date) %in% c(1, 7), 1, 0))
+  ) 
+
+
+ggplot(bikes, aes(x = weekday, y = Rented.Bike.Count)) +
+  geom_bar(stat = "identity")
+
+bikes %>% group_by(weekday) %>% 
+  summarise(avg_bike_count = mean(Rented.Bike.Count))
+
+
+```
+
+```{r}
+
+
+ggplot(bikes, aes(x = month_name, y = Rented.Bike.Count)) +
+  geom_bar(stat = "identity")
+
+
+```
+## Feature Engineering Plan
+What we are planning to do:
+Categorize variables such as humidity, wind speed, and visibility into subgroups such as high humidity, mid humidity, and low humidity
+
+Split up the hours of the day into categories like commuting hours and night time
+
+What we have done (might still need to do more):
+Change the date variable into something meaningful, extract weekdays, months, is weekend
+
+Check for high correlation between the variables, for example we have months and seasons, but we only need one. 
+
+
+## Linear Regression
+
+```{r}
+bikes_clean <- bikes %>% 
+  select(-Date, -Seasons, -is_weekend) %>% 
+  drop_na()
+
+model1 <- lm(Rented.Bike.Count ~ ., data = bikes_clean)
+
+summary(model1)
+
+```
+## Road blocks and open questions
+
+Github is currently a roadblock. We need to figure out how to make sure we can all access the data file and know how to collaborate on github. 
+
+There is currently a Korean character in our data file and 3/4 of us have issues reading the file. 
+
+We also want to figure out how to make our bar chart of weekday and count weekday and average count. 
+
+We still need to run our ridge regression.
+
+How do we split the data by time instead of randomly?
+
+
+
+
+
+
